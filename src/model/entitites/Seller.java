@@ -1,12 +1,15 @@
 package model.entitites;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 
 public class Seller implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 	
 	private Integer id;
 	private String name;
@@ -108,7 +111,7 @@ public class Seller implements Serializable {
 		builder.append(", email=");
 		builder.append(email);
 		builder.append(", birthDate=");
-		builder.append(birthDate);
+		builder.append(sdf.format(birthDate));
 		builder.append(", baseSalary=");
 		builder.append(baseSalary);
 		builder.append(", department=");
