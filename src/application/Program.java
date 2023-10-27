@@ -44,7 +44,9 @@ public class Program {
 		sellerDao.update(seller);
 		System.out.println("atualizado !");
 		
-		
+		System.out.println("--------------delete");
+		sellerDao.deleteById(3);
+		System.out.println("deletado !");
 	}
 
 }
