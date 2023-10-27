@@ -1,5 +1,6 @@
 package application;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import model.dao.DaoFactory;
@@ -23,6 +24,12 @@ public class Program {
 		list.forEach(System.out::println);
 
 		System.out.println("--------------");
+		
+		
+		System.out.println("--------------FindAll");
+		List<Seller> listFind = new ArrayList<>();
+		listFind = sellerDao.findAll();
+		listFind.forEach(System.out::println);
 		
 		
 		
