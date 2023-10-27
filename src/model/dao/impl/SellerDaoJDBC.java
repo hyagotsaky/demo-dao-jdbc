@@ -17,8 +17,8 @@ import model.entitites.Department;
 import model.entitites.Seller;
 
 public class SellerDaoJDBC implements SellerDao {
-	
-	private Connection conn;	
+
+	private Connection conn;
 
 	public SellerDaoJDBC(Connection conn) {
 		this.conn = conn;
@@ -28,47 +28,60 @@ public class SellerDaoJDBC implements SellerDao {
 	public void insert(Seller obj) {
 
 		PreparedStatement st = null;
-		
+
 		try {
-			st = conn.prepareStatement(
-					"Insert into seller "
-							+"(Name, Email, BirthDate, BaseSalary, DepartmentId) "
-							+"VALUES "
-							+"(?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+			st = conn.prepareStatement("Insert into seller " + "(Name, Email, BirthDate, BaseSalary, DepartmentId) "
+					+ "VALUES " + "(?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
 			st.setString(1, obj.getName());
 			st.setString(2, obj.getEmail());
 			st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
 			st.setDouble(4, obj.getBaseSalary());
 			st.setInt(5, obj.getDepartment().getId());
-			
+
 			int linhasAfetadas = st.executeUpdate();
-			if(linhasAfetadas > 0) {
+			if (linhasAfetadas > 0) {
 				ResultSet rs = st.getGeneratedKeys();
-				if(rs.next()) {
+				if (rs.next()) {
 					int id = rs.getInt(1);
 					obj.setId(id);
 				}
-			}else {
+			} else {
 				throw new DbException("nenhuma linha alterada");
 			}
-			
-		}catch (SQLException e) {
+
+		} catch (SQLException e) {
 			throw new DbException(e.getMessage());
 		}
-		
-		
+
 	}
 
 	@Override
 	public void update(Seller obj) {
-		// TODO Auto-generated method stub
-		
+		PreparedStatement st = null;
+
+		try {
+			st = conn.prepareStatement("Update seller "
+					+ "Set Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?,DepartmentId = ? "
+					+ "where Id= ?");
+			st.setString(1, obj.getName());
+			st.setString(2, obj.getEmail());
+			st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
+			st.setDouble(4, obj.getBaseSalary());
+			st.setInt(5, obj.getDepartment().getId());
+			st.setInt(6, obj.getId());
+
+			st.executeUpdate();
+
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+
 	}
 
 	@Override
 	public void deleteById(Integer id) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -76,31 +89,29 @@ public class SellerDaoJDBC implements SellerDao {
 		ResultSet rs = null;
 		PreparedStatement st = null;
 		try {
-			st = conn.prepareStatement("select seller .*,department.Name as DepName "
-					+ "from seller inner join department "
-					+ "on seller.DepartmentId = department.Id "
-					+ "where seller.Id = ?");
-			
+			st = conn.prepareStatement(
+					"select seller .*,department.Name as DepName " + "from seller inner join department "
+							+ "on seller.DepartmentId = department.Id " + "where seller.Id = ?");
+
 			st.setInt(1, id);
 			rs = st.executeQuery();
-			if(rs.next()) {
-				Department dep = instantiateDepartment(rs);		
-				Seller obj = instantiateSeller(rs,dep);
+			if (rs.next()) {
+				Department dep = instantiateDepartment(rs);
+				Seller obj = instantiateSeller(rs, dep);
 				return obj;
 			}
-			
+
 			return null;
-		}catch (SQLException e) {
+		} catch (SQLException e) {
 			throw new DbException(e.getMessage());
-		}
-		finally {
+		} finally {
 			DB.closeStatement(st);
 			DB.closeResultSet(rs);
 		}
 	}
 
 	private Seller instantiateSeller(ResultSet rs, Department dep) throws SQLException {
-		
+
 		Seller obj = new Seller();
 		obj.setId(rs.getInt("Id"));
 		obj.setName(rs.getString("Name"));
@@ -123,33 +134,31 @@ public class SellerDaoJDBC implements SellerDao {
 		ResultSet rs = null;
 		PreparedStatement st = null;
 		try {
-			st = conn.prepareStatement("select seller .*, department.Name as DepName "
-					+ "from seller inner join department "
-					+ "on seller.DepartmentId = department.id "
-					+ "order by Name");
-			
+			st = conn.prepareStatement(
+					"select seller .*, department.Name as DepName " + "from seller inner join department "
+							+ "on seller.DepartmentId = department.id " + "order by Name");
+
 			rs = st.executeQuery();
 			List<Seller> list = new ArrayList<>();
-			Map<Integer,Department> map = new HashMap<>();
-			
-			while(rs.next()) {
-				
+			Map<Integer, Department> map = new HashMap<>();
+
+			while (rs.next()) {
+
 				Department dep = map.get(rs.getInt("DepartmentId"));
-				
-				if(dep == null) {
+
+				if (dep == null) {
 					dep = instantiateDepartment(rs);
 					map.put(rs.getInt("DepartmentId"), dep);
 				}
-				
-				Seller obj = instantiateSeller(rs,dep);
+
+				Seller obj = instantiateSeller(rs, dep);
 				list.add(obj);
 			}
 			return list;
-			
-		}catch (SQLException e) {
+
+		} catch (SQLException e) {
 			throw new DbException(e.getMessage());
-		}
-		finally {
+		} finally {
 			DB.closeStatement(st);
 			DB.closeResultSet(rs);
 		}
@@ -160,35 +169,32 @@ public class SellerDaoJDBC implements SellerDao {
 		ResultSet rs = null;
 		PreparedStatement st = null;
 		try {
-			st = conn.prepareStatement("select seller .*, department.Name as DepName "
-					+ "from seller inner join department "
-					+ "on seller.DepartmentId = department.id "
-					+ "where DepartmentId = ? "
-					+ "order by Name");
-			
+			st = conn.prepareStatement(
+					"select seller .*, department.Name as DepName " + "from seller inner join department "
+							+ "on seller.DepartmentId = department.id " + "where DepartmentId = ? " + "order by Name");
+
 			st.setInt(1, department.getId());
 			rs = st.executeQuery();
 			List<Seller> list = new ArrayList<>();
-			Map<Integer,Department> map = new HashMap<>();
-			
-			while(rs.next()) {
-				
+			Map<Integer, Department> map = new HashMap<>();
+
+			while (rs.next()) {
+
 				Department dep = map.get(rs.getInt("DepartmentId"));
-				
-				if(dep == null) {
+
+				if (dep == null) {
 					dep = instantiateDepartment(rs);
 					map.put(rs.getInt("DepartmentId"), dep);
 				}
-				
-				Seller obj = instantiateSeller(rs,dep);
+
+				Seller obj = instantiateSeller(rs, dep);
 				list.add(obj);
 			}
 			return list;
-			
-		}catch (SQLException e) {
+
+		} catch (SQLException e) {
 			throw new DbException(e.getMessage());
-		}
-		finally {
+		} finally {
 			DB.closeStatement(st);
 			DB.closeResultSet(rs);
 		}

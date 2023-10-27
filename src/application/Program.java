@@ -33,11 +33,18 @@ public class Program {
 		listFind.forEach(System.out::println);
 		
 		
-		System.out.println("--------------FindAll");
+		System.out.println("--------------insert");
 		Seller newSeller = new Seller(null, "Maria", "maria@email.com", new Date(), 4000.0, department);
 		sellerDao.insert(newSeller);
 		System.out.println("inserido com o id:" + newSeller.getId());
 
+		System.out.println("--------------update");
+		seller = sellerDao.findById(1);
+		seller.setName("Marta");
+		sellerDao.update(seller);
+		System.out.println("atualizado !");
+		
+		
 	}
 
 }
